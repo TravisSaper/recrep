@@ -130,26 +130,35 @@ need() {
 
 banner
 
-phase "Phase 1: Information Gathering — subfinder, assetfinder, httpx"
+phase "Information Gathering — subfinder, assetfinder, httpx"
 
-echo "Subfinder on $DOMAIN"
+if [[ -n "$DOMAIN" ]]; then
+    echo "Subfinder on $DOMAIN"
+else
+    echo "Subfinder on domains from $DOMAIN_LIST"
+fi
 
 if [[ -n "$DOMAIN" ]]; then
     if need subfinder; then
-        subfinder -d "$DOMAIN" -o subfinder.txt
+        subfinder -d "$DOMAIN" -rl "$RATE_LIMIT" -o subfinder.txt
     else
         touch subfinder.txt
     fi
 
 elif [[ -n "$DOMAIN_LIST" ]]; then
     if need subfinder; then
-        subfinder -dL "$DOMAIN_LIST" -o subfinder.txt
+        subfinder -dL "$DOMAIN_LIST" -rl "$RATE_LIMIT" -o subfinder.txt
     else
         touch subfinder.txt
     fi
 fi
 
-echo "Assetfinder on $DOMAIN"
+if [[ -n "$DOMAIN" ]]; then
+    echo "Assetfinder on $DOMAIN"
+else
+    echo "Assetfinder on domains from $DOMAIN_LIST"
+fi
+
 if [[ -n "$DOMAIN" ]]; then
     if need assetfinder; then
         assetfinder --subs-only "$DOMAIN" > assetfinder.txt
@@ -171,12 +180,10 @@ cat subfinder.txt assetfinder.txt | sort -u > subs.txt
 
 echo "Httpx on subs.txt"
 if need httpx; then
-    httpx -l subs.txt -silent -status-code -title -tech-detect \
+    httpx -l subs.txt -silent -status-code -title -tech-detect -rl "$RATE_LIMIT" \
         -o recon_results_code.txt
-
-    httpx -l subs.txt -silent -o live_subdomains.txt
 else
-    touch recon_results_code.txt live_subdomains.txt
+    touch recon_results_code.txt
 fi
 
 : > interesting_findings.txt
@@ -189,7 +196,7 @@ grep -Ei 'admin|api|dev|stage|staging|test|internal|dashboard|portal|vpn|auth|be
 
 echo "" >> interesting_findings.txt
 echo "Interesting HTTP responses:" >> interesting_findings.txt
-grep -E '\[(200|401|403|500)\]' recon_results_code.txt \
+grep -E '\[(200|301|302|401|403|404|500)\]' recon_results_code.txt \
     >> interesting_findings.txt || true
 
 
@@ -231,6 +238,7 @@ REPORT_FILE="report/report.md"
     echo ""
 
     while IFS= read -r line; do
+        [[ -n "$line" ]] || continue
         url="${line%% *}"
         rest="${line#"$url"}"
         printf '[%s](%s)%s\n\n' "$url" "$url" "$rest"
@@ -240,21 +248,20 @@ REPORT_FILE="report/report.md"
     echo ""
 
     while IFS= read -r line; do
-        # Keep section headers unchanged
         if [[ "$line" == "[+]"* || -z "$line" ]]; then
             echo "$line"
             continue
         fi
 
-        # If it is an httpx result, turn URL into a Markdown link
         if [[ "$line" == http://* || "$line" == https://* ]]; then
             url="${line%% *}"
             rest="${line#"$url"}"
             printf '[%s](%s)%s\n\n' "$url" "$url" "$rest"
         else
-            # Keep interesting subdomain names as they are
             echo "$line"
         fi
     done < interesting_findings.txt
 
 } > "$REPORT_FILE"
+
+log "Report written to $OUTDIR/$REPORT_FILE"
