@@ -1,6 +1,6 @@
-# Recrep
+# recrep
 
-**Recrep** is a Bash-based reconnaissance tool designed to automate common reconnaissance tasks for **authorized security testing**.
+**recrep** is a Bash-based reconnaissance tool designed to automate common reconnaissance tasks for **authorized security testing**.
 
 It combines subdomain discovery, HTTP probing, and automated scanning into a single workflow.
 
