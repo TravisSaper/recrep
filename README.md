@@ -45,74 +45,6 @@ You can now run Recrep directly:
 ./recrep.sh -h
 ```
 
-## Installing to PATH
-
-To run Recrep from any directory using:
-
-```bash
-recrep
-```
-
-create a local executable directory:
-
-```bash
-mkdir -p ~/.local/bin
-```
-
-Copy Recrep into it:
-
-```bash
-cp recrep.sh ~/.local/bin/recrep
-chmod +x ~/.local/bin/recrep
-```
-
-Add `~/.local/bin` to your `PATH`.
-
-### Bash
-
-Add the following to `~/.bashrc`:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then reload your shell:
-
-```bash
-source ~/.bashrc
-```
-
-### Zsh
-
-If you use Zsh, add the following to `~/.zshrc`:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-Then reload your shell:
-
-```bash
-source ~/.zshrc
-```
-
-Verify the installation:
-
-```bash
-which recrep
-```
-
-You should see something similar to:
-
-```text
-/home/username/.local/bin/recrep
-```
-
-You can then run:
-
-```bash
-recrep -h
-```
 
 # Updating
 
@@ -203,22 +135,6 @@ Options:
 
 # Troubleshooting
 
-### `recrep: command not found`
-
-Check whether `~/.local/bin` is included in your `PATH`:
-
-```bash
-echo $PATH
-```
-
-If it is missing, add:
-
-```bash
-export PATH="$HOME/.local/bin:$PATH"
-```
-
-to your `~/.bashrc` or `~/.zshrc`, then reload your shell.
-
 ### `Permission denied`
 
 Make sure the script is executable:
@@ -227,19 +143,6 @@ Make sure the script is executable:
 chmod +x ~/.local/bin/recrep
 ```
 
-### Check the installed executable
-
-```bash
-which recrep
-```
-
-You can also use:
-
-```bash
-type -a recrep
-```
-
-This can help identify multiple installations of Recrep.
 
 # Contributing
 
